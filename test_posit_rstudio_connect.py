@@ -23,14 +23,16 @@ import traceback
 def driver():
     return webdriver.Chrome()
 
+# Just does the navigation
 def navigate(driver: webdriver, location: str):
     driver.get(location)
 
-def wait_for_presence(driver: webdriver, locator, waittime=10):
+def wait_for_presence(driver: webdriver, locator:str, waittime:int =10):
     return WebDriverWait(driver, waittime).until(EC.presence_of_element_located(locator))
 
+# Fixture that signs in for the user at the posit cloud site
 @pytest.fixture
-def sign_in_posit(driver, username, password):
+def sign_in_posit(driver: webdriver, username: str, password: str):
 
    navigate(driver, "https://posit.cloud")
    wait_for_presence(driver, locator=(By.XPATH, "//a[contains(@href, 'login')]")).click()
@@ -47,13 +49,14 @@ def sign_in_posit(driver, username, password):
    element = wait_for_presence(driver, locator=(By.XPATH, "//button[.='Log in']"))
    element.click()
 
-def verify_posit_main(driver):
+# Verifies we're on the posit cloud main page
+def verify_posit_main(driver: webdriver):
   # Uses side effect of checking for presence
   element = wait_for_presence(driver, locator=(By.CSS_SELECTOR, ".productLogo"))
 
 # Automated this before I realized I only got one workspace for posit cloud.
 # Might be useful later though...
-def create_workspace(driver):
+def create_workspace(driver: webdriver):
   # Cleanup  # Cleanup??
   print("Create Workspace")
   element = wait_for_presence(driver, locator=(By.CSS_SELECTOR, ".newSpace"))
@@ -69,7 +72,8 @@ def create_workspace(driver):
   print("Workspace Created")
   return space_name
 
-def create_new_project(driver):
+# Creates a new project
+def create_new_project(driver: webdriver):
    time.sleep(5) # Don't like this, but seems the menu needs some time to stabilise.
    element = wait_for_presence(driver, locator=(By.XPATH, "//button[@title='New Project']"))
    element.click()
@@ -77,7 +81,9 @@ def create_new_project(driver):
    element = wait_for_presence(driver, locator=(By.CSS_SELECTOR, "button.newRStudioProject"))
    element.click()
 
-def verify_rstudio(driver, retries=10):
+# Verify that RStudio is loaded.
+# Can take some time, so we do some retries.
+def verify_rstudio(driver: webdriver, retries:int =10):
    # Rstudio is in an iframe within an iframe, so we need to talk to the right
    # iframe first
    time.sleep(30) # Give the UI a little time to stabilise 
@@ -95,7 +101,8 @@ def verify_rstudio(driver, retries=10):
          traceback.print_exc(e)
    driver.switch_to.default_content()
 
-def test_verify_studio(driver, username, password, sign_in_posit):
+# Tests we can sign in, navigate to posit cloud, create a project and RStudio is loaded.
+def test_verify_studio(driver: webdriver, username:str, password:str, sign_in_posit):
    # Make sure we navigated correctly.
    verify_posit_main(driver)
    create_new_project(driver)

@@ -18,13 +18,13 @@ source ~/env_posit_challenge/bin/activate
 
 * Clone the project.
 ```
-git clone git@github.com:efancher/posit.git
+git clone git@github.com:efancher/posit_public.git
 ```
 
 * Enter the project directory.
 
 ```
-cd posit
+cd posit_public
 ```
 
 * Install dependencies.
